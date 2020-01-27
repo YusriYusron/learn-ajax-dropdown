@@ -4,7 +4,7 @@ var config = require('./config')
 var app = express()
 
 app.get('/', (request, response) => {
-    response.send('Hallo World!')
+    response.sendFile(__dirname+"/views/index.html")
 })
 
 app.listen(process.env.LISTEN_PORT)
