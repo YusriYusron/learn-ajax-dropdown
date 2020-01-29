@@ -5,28 +5,97 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script> -->
     <title>AJAX DROPDOWN</title>
 </head>
 <body>
     <div class="container pt-5">
         <div class="form-group">
-            <label>Country</label>
-            <select name="type" class="form-control">
-                <option value="0">Select Your Country</option>
-            </select>
-        </div>
-        <div class="form-group">
             <label>Province</label>
-            <select name="type" class="form-control">
+            <select name="province" id="province" class="form-control" onchange="getValue()">
                 <option value="0">Select Your Province</option>
             </select>
         </div>
         <div class="form-group">
             <label>Regency</label>
-            <select name="type" class="form-control">
+            <select name="regency" id="regency" class="form-control">
                 <option value="0">Select Your Regency</option>
             </select>
         </div>
     </div>
+    <script>
+        //Execute Method
+        getSelectedProvince()
+
+        function getValue() {
+            //Get Value Province Dropdown When Dropdown Selected or Change
+            var provinceValue = document.getElementById('province').value
+            console.log(provinceValue)
+
+            //Send data to Node JS (Server)
+            var xhr = new XMLHttpRequest();
+            var data = {
+                province_id: provinceValue,
+            };
+            xhr.open('POST', '/regencies');
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify(data));
+
+            //Regency Dropdown
+            let dropdownRegency = document.getElementById('regency')
+
+            //Request data for Regency Dropdown
+            document.addEventListener('change', (event) => {
+                fetch('/regencies', {
+                    method: 'GET'
+                }).then((response) => {
+                    if (response.status !== 200) {
+                        console.log('Problem')
+                        return
+                    }
+                        
+                    response.json().then((data) => {
+                        let option
+
+                        for (let index = 0; index < data.length; index++) {
+                            option = document.createElement('option')
+                            option.text = data[index].name
+                            option.value = data[index].id
+                            dropdownRegency.add(option)
+                        }
+                    })
+                }).catch((error) => {
+                    console.log('Error Fetch Data Regency')
+                })
+            })
+        }
+
+        function getSelectedProvince() {
+            //Province Dropdown
+            let dropdownProvince = document.getElementById('province')
+
+            //Request data for Province Dropdown
+            fetch('/provinces')
+                .then((response) => {
+                    if (response.status !== 200) {
+                        console.log('Problem')
+                        return
+                    }
+                    response.json().then((data) => {
+                        let option
+
+                        for (let index = 0; index < data.length; index++) {
+                            option = document.createElement('option')
+                            option.text = data[index].name
+                            option.value = data[index].id
+                            dropdownProvince.add(option)
+                        }
+                    })
+                }
+            ).catch((error) => {
+                console.log('Error Fetch Data')
+            })   
+        }
+    </script>
 </body>
 </html>
